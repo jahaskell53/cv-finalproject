@@ -20,14 +20,14 @@ def parse_args():
         help='''the source image you would to detect test and translate''')
     parser.add_argument( '--src_lang',
         required=False,
-        choices= constants.LANGUAGES,
-        default = "fr",
+        choices= constants.LANGUAGES.values(),
+        default = "english",
         help='''the source language you are trying to translate''')
     parser.add_argument(
         '--dest_lang',
         required = False,
-        default='kr',
-        choices= constants.LANGUAGES,
+        default='french',
+        choices= constants.LANGUAGES.values(),
         help='the language you are trying to translate the original piece to')
     parser.add_argument(
         '--vis',
@@ -64,16 +64,29 @@ def translate_text(prediction_groups, src_lang, dest_lang):
     translate_client = Translator()
     all_text = [text[0] for text in predicted_image]
 
+    
+    print("Original text in {}: {}".format(constants.LANGUAGES[src_lang], all_text))
     translation_list = translate_client.translate(all_text, src = src_lang, dest = dest_lang)
     translated_text = [text.text for text in translation_list]
+
+    print("Translated text in {}: {}".format(constants.LANGUAGES[dest_lang], translated_text))
 
     return translated_text
 
 def main():
 
     prediction_groups = recognize_text()
-    translated_text = translate_text(prediction_groups, ARGS.src_lang, ARGS.dest_lang)
-    print(translated_text)
+
+    values_list = list(constants.LANGUAGES.values())
+    key_list = list(constants.LANGUAGES.keys())
+
+    src_lang = values_list.index(ARGS.src_lang)
+    dest_lang = values_list.index(ARGS.dest_lang)
+
+    src_lang_code = key_list[src_lang]
+    dest_lang_code = key_list[dest_lang]
+
+    translated_text = translate_text(prediction_groups, src_lang_code, dest_lang_code)
 
 
 ARGS = parse_args()
