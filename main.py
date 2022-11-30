@@ -1,42 +1,81 @@
 
+
+import argparse
 import keras_ocr
 import matplotlib.pyplot as plt
 from googletrans import Translator
-# from google.cloud import translate_v2 as translate
+from googletrans import constants
 
 
-pipeline = keras_ocr.pipeline.Pipeline()
+def parse_args():
+    """ Perform command-line argument parsing. """
 
+    parser = argparse.ArgumentParser(
+        description="Lets have some!",
+        formatter_class=argparse.ArgumentDefaultsHelpFormatter)
 
-images = [
-    keras_ocr.tools.read(img) for img in ["/Users/ajmroueh/Desktop/fall_2022/computer_vision/cv-finalproject/billboard2.jpeg","/Users/ajmroueh/Desktop/fall_2022/computer_vision/cv-finalproject/billboard.jpg", "/Users/ajmroueh/Desktop/fall_2022/computer_vision/cv-finalproject/french_image.jpeg"]
-]
+    parser.add_argument( '--img_path',
+        required=False,
+        default = "french_image.jpeg",
+        help='''the source image you would to detect test and translate''')
+    parser.add_argument( '--src_lang',
+        required=False,
+        choices= constants.LANGUAGES,
+        default = "fr",
+        help='''the source language you are trying to translate''')
+    parser.add_argument(
+        '--dest_lang',
+        required = False,
+        default='kr',
+        choices= constants.LANGUAGES,
+        help='the language you are trying to translate the original piece to')
+    parser.add_argument(
+        '--vis',
+        required = False,
+        default = "False",
+        choices = ["True, False"],
+        help='whether or not you would like to visualize the text recognition'
+    )
 
-# plot the text predictions
-prediction_groups = pipeline.recognize(images)
-fig, axs = plt.subplots(nrows=len(images), figsize=(10, 20))
-
-for ax, image, predictions in zip(axs, images, prediction_groups):
-    keras_ocr.tools.drawAnnotations(image=image, 
-                                    predictions=predictions, 
-                                    ax=ax)
-
-# plt.show()
-
-predicted_image = prediction_groups[2]
-translate_client = Translator()
-all_text = [text[0] for text in predicted_image]
-print(all_text)
-
-translation_list = translate_client.translate(all_text, src = "fr", dest = "en")
-
-translated_text = [text.text for text in translation_list]
-print(translated_text)
-
-# for text, box in predicted_image:
-#     print(translate_client.translate(text, src = "fr", dest = "en").text)
+    return parser.parse_args()
     
-# translate_client = translate.Client()
 
-# translated = translate.translate('Je suis allergique')
+def recognize_text():
+    pipeline = keras_ocr.pipeline.Pipeline()
+
+
+    images = [
+    keras_ocr.tools.read(img) for img in [ARGS.img_path]
+    ]
+
+    # plot the text predictions
+    prediction_groups = pipeline.recognize(images)
+    fig, axs = plt.subplots(nrows=len(images), figsize=(10, 8))
+
+    keras_ocr.tools.drawAnnotations(image=images[0], 
+                                        predictions=prediction_groups[0], 
+                                        ax=axs)
+    if(ARGS.vis == "True"):
+        plt.show()
+    return prediction_groups
+
+def translate_text(prediction_groups, src_lang, dest_lang):
+    predicted_image = prediction_groups[0]
+    translate_client = Translator()
+    all_text = [text[0] for text in predicted_image]
+
+    translation_list = translate_client.translate(all_text, src = src_lang, dest = dest_lang)
+    translated_text = [text.text for text in translation_list]
+
+    return translated_text
+
+def main():
+
+    prediction_groups = recognize_text()
+    translated_text = translate_text(prediction_groups, ARGS.src_lang, ARGS.dest_lang)
+    print(translated_text)
+
+
+ARGS = parse_args()
+main()
 
