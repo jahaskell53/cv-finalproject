@@ -16,7 +16,7 @@ def parse_args():
 
     parser.add_argument( '--img_path',
         required=False,
-        default = "french_image.jpeg",
+        default = "simple_text_example.jpeg",
         help='''the source image you would to detect test and translate''')
     parser.add_argument( '--src_lang',
         required=False,
