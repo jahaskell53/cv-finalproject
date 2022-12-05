@@ -3,6 +3,7 @@ import datetime
 import string
 import math
 import os
+import shutil
 
 import tqdm
 import matplotlib.pyplot as plt
@@ -15,8 +16,6 @@ import glob
 
 from PIL import Image
 from PIL import ImageFont, ImageDraw
-
-assert tf.test.is_gpu_available(), 'No GPU is available.'
 
 data_dir = '.'
 alphabet = string.digits + string.ascii_letters + '!?. '
@@ -34,6 +33,11 @@ text_generator = keras_ocr.data_generation.get_text_generator(alphabet=alphabet)
 print('The first generated text is:', next(text_generator))
 font_list = glob.glob('**/**/*.ttf', recursive=True)
 
+# TODO: insert LOCAL ABSOLUTE PATH below
+save_directory = "/Users/os/Documents/CS-Classes/cs1430/cv-finalproject/data_generated"
+# TODO: COMMENT THIS LINE BELOW IF THIS IS YOUR FIRST RUN (no directory created yet)
+shutil.rmtree(save_directory) # NOTICE: if your directory is empty and you want to delete it, use os.remove(save_directory)
+os.mkdir(save_directory)  
 
 counter = 0
 for image_path in backgrounds: 
@@ -52,7 +56,7 @@ for image_path in backgrounds:
 
     random_int = rand.randint(5,10)
     for i in range(0, random_int):
-        random_character = rand.randint(0,len(alphabet))
+        random_character = rand.randint(0,len(alphabet) - 1)
         random_character = alphabet[random_character]
 
         red_value = rand.randrange(0,255)
@@ -70,19 +74,23 @@ for image_path in backgrounds:
         random_font = font_list[i]
         print(random_font)
 
-    # draw.text((x_location, y_location),"Sample Text",(red_value,green_value,blue_value),font=font)
         font_size = rand.randint(20,100)
         rand_font = ImageFont.truetype(random_font, font_size)
-        I1.text((x_location, y_location), random_character, fill=(red_value, green_value, blue_value), font = rand_font)
-    img.show()
+        try:
+            I1.text((x_location, y_location), random_character, fill=(red_value, green_value, blue_value), font = rand_font)
+        except:
+            continue
+        # the below code excerpt is taken from here: https://github.com/python-pillow/Pillow/issues/3921 
+        right, bottom = rand_font.getsize(random_character)
+        width, height = rand_font.getmask(random_character).size
+        right += x_location
+        bottom += y_location
+        top = bottom - height
+        left = right - width
+        I1.rectangle((left, top, right, bottom), None, "#f00")
+    # img.show()
+    # I1.rectangle(img.getbbox())
     
-
-
-    save_directory = ""
-    os.mkdir(save_directory)  
-    image = img.save(f"{save_directory}/image.png")
-
-
-
-
-
+    filename = image_path.split("/")[-1]
+    image = img.save(f"{save_directory}/" + filename + ".png")
+    break
