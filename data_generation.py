@@ -8,7 +8,7 @@ import csv
 
 import tqdm
 import matplotlib.pyplot as plt
-import tensorflow as tf
+#import tensorflow as tf
 import sklearn.model_selection
 import cv2
 import keras_ocr
@@ -19,7 +19,8 @@ from PIL import Image
 from PIL import ImageFont, ImageDraw
 
 data_dir = '.'
-alphabet = string.digits + string.ascii_letters + '!?. '
+#alphabet = string.digits + string.ascii_letters + '!?. '
+alphabet = string.ascii_letters
 print(alphabet)
 recognizer_alphabet = ''.join(sorted(set(alphabet.lower())))
 fonts = keras_ocr.data_generation.get_fonts(
@@ -35,7 +36,8 @@ print('The first generated text is:', next(text_generator))
 font_list = glob.glob('**/**/*.ttf', recursive=True)
 
 # TODO: insert LOCAL ABSOLUTE PATH of this file below
-save_directory = "/Users/os/Documents/CS-Classes/cs1430/cv-finalproject" + "/data_generated"
+#save_directory = "/Users/os/Documents/CS-Classes/cs1430/cv-finalproject" + "/data_generated"
+save_directory = "data_generated"
 # TODO: COMMENT THIS LINE BELOW IF THIS IS YOUR FIRST RUN (no directory created yet)
 if os.path.exists("data_generated"):
     shutil.rmtree(save_directory) # NOTICE: if your directory is empty and you want to delete it, use os.remove(save_directory)
