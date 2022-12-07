@@ -38,6 +38,11 @@ save_directory = "data_generated"
 if os.path.exists("data_generated"):
     shutil.rmtree(save_directory) # NOTICE: if your directory is empty and you want to delete it, use os.remove(save_directory)
 os.mkdir(save_directory)  
+# the directory below is for masks
+mask_directory = "data_generated_mask"
+if os.path.exists("data_generated_mask"):
+    shutil.rmtree(mask_directory) # NOTICE: if your directory is empty and you want to delete it, use os.remove(save_directory)
+os.mkdir(mask_directory)  
 
 rows = [] # rows for csv file
 counter = 0
@@ -57,9 +62,12 @@ for image_path in backgrounds:
 
     I1 = ImageDraw.Draw(img)
 
+    # create a folder inside mask_directory
+    filename = image_path.split("/")[-1][:-4] # this includes the .jpg ending
+    os.mkdir(mask_directory + "/" + filename)
+
     current_row = []
     random_int = rand.randint(5,10)
-    filename = image_path.split("/")[-1]
     seen_chars= {}
     for i in range(0, random_int):
         random_character = rand.randint(0,len(alphabet) - 1)
@@ -111,9 +119,16 @@ for image_path in backgrounds:
     # img.show()
         rows.append(current_row)
         current_row = []
+        
+        # creating a new mask image
+        mask = Image.new(mode="RGBA", size=(image_width,image_height), color=(0,0,0,255))
+        mask_draw = ImageDraw.Draw(mask)
+        mask_draw.text((x_location, y_location), random_character, fill=(255, 255, 255), font = rand_font)
+        mask.save(f"{mask_directory}/" + filename + "/" + random_character + ".png")
     
     image = img.save(f"{save_directory}/" + filename + ".png")
     counter+=1
+    break
 
 # writing to CSV
 csv_filename = "text_box_data.csv"
