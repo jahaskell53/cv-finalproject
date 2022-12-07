@@ -19,7 +19,7 @@ from PIL import Image
 from PIL import ImageFont, ImageDraw
 
 data_dir = '.'
-alphabet = string.digits + string.ascii_letters + '!?. '
+alphabet = string.ascii_letters
 print(alphabet)
 recognizer_alphabet = ''.join(sorted(set(alphabet.lower())))
 fonts = keras_ocr.data_generation.get_fonts(
@@ -35,7 +35,7 @@ print('The first generated text is:', next(text_generator))
 font_list = glob.glob('**/**/*.ttf', recursive=True)
 
 # TODO: insert LOCAL ABSOLUTE PATH of this file below
-save_directory = "/Users/os/Documents/CS-Classes/cs1430/cv-finalproject" + "/data_generated"
+save_directory = "data_generated"
 # TODO: COMMENT THIS LINE BELOW IF THIS IS YOUR FIRST RUN (no directory created yet)
 if os.path.exists("data_generated"):
     shutil.rmtree(save_directory) # NOTICE: if your directory is empty and you want to delete it, use os.remove(save_directory)
@@ -44,6 +44,8 @@ os.mkdir(save_directory)
 rows = [] # rows for csv file
 counter = 0
 for image_path in backgrounds: 
+    if(counter < 50):
+        break
     image = cv2.imread(image_path)
     # plt.imshow(image)
 
@@ -97,13 +99,14 @@ for image_path in backgrounds:
         current_row.append(top)
         current_row.append(right)
         current_row.append(bottom)
-        I1.rectangle((left, top, right, bottom), None, "#f00")
+        # I1.rectangle((left, top, right, bottom), None, "#f00")
         print("left", left, "top", top, "right", right, "bottom", bottom)
     # img.show()
-    rows.append(current_row)
+        rows.append(current_row)
+        current_row = []
     
     image = img.save(f"{save_directory}/" + filename + ".png")
-    break
+    counter+=1
 
 # writing to CSV
 csv_filename = "text_box_data.csv"
