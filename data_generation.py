@@ -19,7 +19,6 @@ from PIL import Image
 from PIL import ImageFont, ImageDraw
 
 data_dir = '.'
-#alphabet = string.digits + string.ascii_letters + '!?. '
 alphabet = string.ascii_letters
 print(alphabet)
 recognizer_alphabet = ''.join(sorted(set(alphabet.lower())))
@@ -35,10 +34,7 @@ text_generator = keras_ocr.data_generation.get_text_generator(alphabet=alphabet)
 print('The first generated text is:', next(text_generator))
 font_list = glob.glob('**/**/*.ttf', recursive=True)
 
-# TODO: insert LOCAL ABSOLUTE PATH of this file below
-#save_directory = "/Users/os/Documents/CS-Classes/cs1430/cv-finalproject" + "/data_generated"
 save_directory = "data_generated"
-# TODO: COMMENT THIS LINE BELOW IF THIS IS YOUR FIRST RUN (no directory created yet)
 if os.path.exists("data_generated"):
     shutil.rmtree(save_directory) # NOTICE: if your directory is empty and you want to delete it, use os.remove(save_directory)
 os.mkdir(save_directory)  
@@ -46,7 +42,10 @@ os.mkdir(save_directory)
 rows = [] # rows for csv file
 counter = 0
 for image_path in backgrounds: 
+    if(counter > 50):
+        break
     image = cv2.imread(image_path)
+    image_height, image_width, _ = image.shape
     # plt.imshow(image)
 
     # offset = font_size
@@ -61,9 +60,15 @@ for image_path in backgrounds:
     current_row = []
     random_int = rand.randint(5,10)
     filename = image_path.split("/")[-1]
+    seen_chars= {}
     for i in range(0, random_int):
         random_character = rand.randint(0,len(alphabet) - 1)
         random_character = alphabet[random_character]
+        if random_character in seen_chars:
+            # skip if random character is already used
+            # this is needed because we want to name the file with the character
+            continue
+        seen_chars[random_character] = 1 # add random_character to dict
 
         red_value = rand.randrange(0,255)
         green_value = rand.randrange(0,255)
@@ -94,18 +99,21 @@ for image_path in backgrounds:
         top = bottom - height # top left y
         left = right - width # top left x
         current_row.append(filename)
+        current_row.append(image_width)
+        current_row.append(image_height)
         current_row.append(random_character)
         current_row.append(left)
         current_row.append(top)
         current_row.append(right)
         current_row.append(bottom)
-        I1.rectangle((left, top, right, bottom), None, "#f00")
-        print("left", left, "top", top, "right", right, "bottom", bottom)
+        # I1.rectangle((left, top, right, bottom), None, "#f00")
+        # print("left", left, "top", top, "right", right, "bottom", bottom)
     # img.show()
-    rows.append(current_row)
+        rows.append(current_row)
+        current_row = []
     
     image = img.save(f"{save_directory}/" + filename + ".png")
-    break
+    counter+=1
 
 # writing to CSV
 csv_filename = "text_box_data.csv"
@@ -114,7 +122,7 @@ csv_absolute_file_path = os.path.join(save_directory, csv_filename)
 if os.path.exists(csv_relative_file_path):
   os.remove(csv_absolute_file_path)
 
-fields = ['filename', 'character', 'topleftx', 'toplefty', 'bottomrightx', 'bottomrighty']
+fields = ['filename', 'width', 'height', 'character', 'topleftx', 'toplefty', 'bottomrightx', 'bottomrighty']
 
 with open(csv_absolute_file_path, 'a+') as csvfile:
     csvwriter = csv.writer(csvfile)
