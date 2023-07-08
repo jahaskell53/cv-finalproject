@@ -1,4 +1,4 @@
-# CV Finalproject
+# Computer Vision Final Project
 Computer Vision (CS1430) Final Project by Jakobi Haskell, Anh Duong, Ayman Benjelloun Touimi & Adam Mroueh.
 Full Colab notebook here: https://colab.research.google.com/drive/1tCy18ThUYPCqvCGPS7Sx6-C2hfNiaveT?authuser=1#scrollTo=yYxtkRxM_Hdn 
 
